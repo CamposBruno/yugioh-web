@@ -34,7 +34,7 @@ function Header({ history }: any) {
     <div className="w-screen flex flex-row items-center p-1 shadow-xs p-4">
       <div className="ml-4 mr-8 text-lg text-gray-100 hidden font-bold md:flex">
         <Link to="/">
-          <img src="/images/logo.png" alt="logo" />
+          <img src={process.env.REACT_APP_BUCKET_URL + "/images/logo.png"} alt="logo" />
         </Link>        
       </div>
       <CardFilter onChangeHandler={debouncedSearchChangeHandler} />
