@@ -9,7 +9,6 @@ import { IpfsCardDetailsInterface } from '../../services/ipfs/interfaces';
 const ipfsGatewayUrl = 'https://gateway.pinata.cloud/ipfs/{CID}';
 
 export default function HomePage({history}: any) {
-  const CARD_LIST: Array<IpfsCardDetailsInterface> = [...CardDetailsList as []];
 
   const [filteredCardList, setFilteredCardList] = useState<JSX.Element[]>([]);
   const [dealCards, setDealCards] = useState<JSX.Element[]>([]);
@@ -23,6 +22,48 @@ export default function HomePage({history}: any) {
   }
 
   useEffect(() => {
+    const CARD_LIST: Array<IpfsCardDetailsInterface> = [...CardDetailsList as []];
+
+    const fetchEpicCards = (quantity: number): JSX.Element[] => {
+      const epics = CARD_LIST.splice(0, 3);    
+      return epics.map((item, position) => buildCardElement(item, position))
+    }
+  
+    const fetchCardByType = (type: string, len = 10): JSX.Element[] => {
+      const filterByType = (card: any) => card.Type === type
+      const list = CARD_LIST
+        .filter(filterByType)
+        .sort(() => Math.random() - 0.5)
+        .splice(0, len)
+      
+      return list.map((item, position) => buildCardElement(item, position))
+    }
+  
+    const fetchCoverCard = (): JSX.Element[] => {
+      const cover = buildCardElement(getPlaceholderCard(), 1, false, false);
+      return [cover];
+    }
+
+    const buildCardElement = (item: IpfsCardDetailsInterface, position: number, description = false, selectable = true) => {
+      const card = new IpfsCardDetails(item, ipfsGatewayUrl);
+      
+      return (
+        <CardBox 
+        key={card.Id}
+        loop={true}
+        onClick={() => selectable && onSelectCard(card)} 
+        position={position} 
+        description={description}
+        card={card}  
+        />
+      )
+    }
+
+    const onSelectCard = (card: IpfsCardDetails) => {
+      history.push('/card-details/' + card.Id);
+    }
+
+
     const filtered = fetchEpicCards(3);
     const deal = fetchCoverCard();
     const spells = fetchCardByType('Spell Card');
@@ -33,47 +74,8 @@ export default function HomePage({history}: any) {
     setSpellCards(spells);
     setMonsterCards(monsters);
     setTrapCards(traps);
-  }, []);
+  }, [history]);
 
-
-  const onSelectCard = (card: IpfsCardDetails) => {
-    history.push('/card-details/' + card.Id);
-  }
-
-  const buildCardElement = (item: IpfsCardDetailsInterface, position: number, description = false, selectable = true) => {
-    const card = new IpfsCardDetails(item, ipfsGatewayUrl);
-    
-    return (
-      <CardBox 
-      key={card.Id}
-      loop={true}
-      onClick={() => selectable && onSelectCard(card)} 
-      position={position} 
-      description={description}
-      card={card}  
-      />
-    )
-  }
-
-  const fetchEpicCards = (quantity: number): JSX.Element[] => {
-    const epics = CARD_LIST.splice(0, 3);    
-    return epics.map((item, position) => buildCardElement(item, position))
-  }
-
-  const fetchCardByType = (type: string, len = 10): JSX.Element[] => {
-    const filterByType = (card: any) => card.Type === type
-    const list = CARD_LIST
-      .filter(filterByType)
-      .sort(() => Math.random() - 0.5)
-      .splice(0, len)
-    
-    return list.map((item, position) => buildCardElement(item, position))
-  }
-
-  const fetchCoverCard = (): JSX.Element[] => {
-    const cover = buildCardElement(getPlaceholderCard(), 1, false, false);
-    return [cover];
-  }
 
   return (
     <>

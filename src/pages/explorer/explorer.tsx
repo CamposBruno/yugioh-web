@@ -9,7 +9,6 @@ import { IpfsCardDetailsInterface } from '../../services/ipfs/interfaces';
 import { IpfsCardDetails } from '../../services/ipfs/models';
 
 export default function ExplorerPage({history}: any) {
-  const CARD_LIST: Array<IpfsCardDetailsInterface> = [...CardDetailsList as []];
 
   const [filteredCards, setFilteredCards] = useState<IpfsCardDetails[]>([]);
   const [search, setSearch] = useState<string>('');
@@ -21,6 +20,19 @@ export default function ExplorerPage({history}: any) {
   }, [location])
 
   useEffect(() => {
+    const CARD_LIST: Array<IpfsCardDetailsInterface> = [...CardDetailsList as []];
+    
+    const fetchFilteredCards = (filter?: string, len = 100): IpfsCardDetails[] => {
+      const filterBySearch = (card: IpfsCardDetailsInterface) => 
+        !filter || new RegExp(`^${filter}`).test(`${card.Name}`)
+  
+      const list = CARD_LIST
+        .filter(filterBySearch)
+        .splice(3, len)
+      
+      return list.map((item) => new IpfsCardDetails(item, ''))
+    }
+
     const filtered = fetchFilteredCards(search)
     setFilteredCards(filtered);
   }, [search])
@@ -38,17 +50,6 @@ export default function ExplorerPage({history}: any) {
       onClick={() => selectable && history.push(`/card-details/${card.Id}`)}
       />
     )
-  }
-
-  const fetchFilteredCards = (filter?: string, len = 100): IpfsCardDetails[] => {
-    const filterBySearch = (card: IpfsCardDetailsInterface) => 
-      !filter || new RegExp(`^${filter}`).test(`${card.Name}`)
-
-    const list = CARD_LIST
-      .filter(filterBySearch)
-      .splice(3, len)
-    
-    return list.map((item) => new IpfsCardDetails(item, ''))
   }
 
   const fetchCardWithCover = (item: any): JSX.Element[] => {

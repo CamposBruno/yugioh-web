@@ -14,18 +14,20 @@ const navigation = [
 
 function Header({ history }: any) {
 
-  const searchChangeHandler = (event: any) => {
-    const search: string = event.target.value
-
-    if (search.length ===  0) {
-      history.push(`/explorer`)
-    } else {
-      history.push(`/explorer/?s=${encodeURI(search)}`)
-    }
-  };
-
   const debouncedSearchChangeHandler = useMemo(
-    () => debounce(searchChangeHandler, 500), []
+    () => {
+      const searchChangeHandler = (event: any) => {
+        const search: string = event.target.value
+    
+        if (search.length ===  0) {
+          history.push(`/explorer`)
+        } else {
+          history.push(`/explorer/?s=${encodeURI(search)}`)
+        }
+      };
+
+      return debounce(searchChangeHandler, 500)
+    }, [history]
   );
 
   return <>
